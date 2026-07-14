@@ -5,6 +5,7 @@ from glob import glob
 import pandas as pd
 from pathlib import Path
 import csv
+from datetime import datetime
 
 @dag(
     dag_id            = "load_data_from_file",
@@ -42,11 +43,18 @@ def main():
         loaded_data = []
         for file_obj in categories_raw_files:
             file_obj_split = file_obj.split('/')
-            file_obj_split[-1]
-            raw_file_path = categories_raw_path / file_obj_split[-1]
+            file_name = file_obj_split[-1]
+            raw_file_path = categories_raw_path / file_name
+            file_name_split = file_name.split('.')[0].split('_')
+            date_format = "%Y%m%d %H%M%S"
+            file_datetime = datetime.strptime(file_name_split[-2] + ' ' + file_name_split[-1], date_format)
             with open(raw_file_path) as csvfile:
                 reader = csv.reader(csvfile)
+                first_row = reader.__next__()
+                first_row.append('modified')
+                loaded_data.append(first_row)
                 for row in reader:
+                    row.append(file_datetime)
                     loaded_data.append(row)
         xcom_store.xcom_push(
            key   = "data",
@@ -69,8 +77,8 @@ def main():
                 task_ids = "load_file_categories",
                 key      = "data"
             )
-            print(data[0])
-            target_table = "bronze.categories"
+            print(data)
+            target_table = "silver.categories"
             fields = data[0]
             data.pop(0)
             rows = data
