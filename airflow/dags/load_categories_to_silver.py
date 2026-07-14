@@ -8,7 +8,7 @@ import csv
 from datetime import datetime
 
 @dag(
-    dag_id            = "load_data_from_file",
+    dag_id            = "load_categories_from_file",
     description       = "Load data from CSV file to bronze db",
     schedule_interval = "* * * * *",
     start_date        = datetime(2026, 7, 1),
