@@ -24,11 +24,12 @@ def main():
         xcom_store = kwargs["ti"]
         categories_raw_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "categories" 
         categories_done_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "categories" / "done"
-        if (categories_done_path.is_dir()):
+        if (not(categories_done_path.is_dir())):
             categories_done_path.mkdir()
         categories_raw_files = glob(str(categories_raw_path / "*.csv"))
-        loaded_data = []
+        loaded_data = None
         for file_obj in categories_raw_files:
+            loaded_data = []
             file_obj_split = file_obj.split('/')
             file_name = file_obj_split[-1]
             raw_file_path = categories_raw_path / file_name
@@ -43,6 +44,9 @@ def main():
                 for row in reader:
                     row.append(file_datetime)
                     loaded_data.append(row)
+            categories_done_file = categories_done_path / file_name
+            print(categories_done_file)
+            raw_file_path.rename(categories_done_file)
         xcom_store.xcom_push(
            key   = "data",
            value = loaded_data
@@ -51,26 +55,26 @@ def main():
     @task
     def db_access(**kwargs):
         xcom_store = kwargs["ti"]
+        data = xcom_store.xcom_pull(
+            task_ids = "load_file_categories",
+            key      = "data"
+        )
         
-        from airflow.providers.postgres.hooks.postgres import PostgresHook
-        postgres_hook = PostgresHook("postgres_dwh") 
+        if data != None:
+            from airflow.providers.postgres.hooks.postgres import PostgresHook
+            postgres_hook = PostgresHook("postgres_dwh") 
 
-        with postgres_hook.get_conn() as db_conn:
-            data = xcom_store.xcom_pull(
-                task_ids = "load_file_categories",
-                key      = "data"
-            )
-            print(data)
-            target_table = "silver.categories"
-            fields = data[0]
-            data.pop(0)
-            rows = data
-            postgres_hook.insert_rows(
-                table=target_table, 
-                rows=rows, 
-                target_fields=fields,
-                commit_every=1
-            )
+            with postgres_hook.get_conn() as db_conn:
+                target_table = "silver.categories"
+                fields = data[0]
+                data.pop(0)
+                rows = data
+                postgres_hook.insert_rows(
+                    table=target_table, 
+                    rows=rows, 
+                    target_fields=fields,
+                    commit_every=1
+                )
 
     t1 = load_file_categories()
     t2 = db_access()
