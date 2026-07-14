@@ -32,44 +32,60 @@ def main():
         print(file_obj_ret)
 
     @task
-    def load_file_categories():
+    def load_file_categories(**kwargs):
+        xcom_store = kwargs["ti"]
         categories_raw_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "categories" 
         categories_done_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "categories" / "done"
         if (categories_done_path.is_dir()):
             categories_done_path.mkdir()
         categories_raw_files = glob(str(categories_raw_path / "*.csv"))
+        loaded_data = []
         for file_obj in categories_raw_files:
             file_obj_split = file_obj.split('/')
             file_obj_split[-1]
             raw_file_path = categories_raw_path / file_obj_split[-1]
             with open(raw_file_path) as csvfile:
                 reader = csv.reader(csvfile)
-                first_row = reader.__next__()
-                sql_command = "INSERT INTO bronze.categories (category_id, category_name) VALUES ("
                 for row in reader:
-                    sql_command_row = sql_command + row[0] + "," + row[1] + ")"
-                    print(sql_command_row)
+                    loaded_data.append(row)
+        xcom_store.xcom_push(
+           key   = "data",
+           value = loaded_data
+        )
+
 
             
 
     
     @task
-    def db_access():
+    def db_access(**kwargs):
+        xcom_store = kwargs["ti"]
+        
         from airflow.providers.postgres.hooks.postgres import PostgresHook
+        postgres_hook = PostgresHook("postgres_dwh") 
 
-        postgres_hook = PostgresHook("postgres_dwh").get_sqlalchemy_engine()
-
-        with postgres_hook.connect() as conn:
-            df = pd.read_sql(
-                sql = "SELECT * FROM customers",
-                con = conn,
+        with postgres_hook.get_conn() as db_conn:
+            data = xcom_store.xcom_pull(
+                task_ids = "load_file_categories",
+                key      = "data"
             )
-        print(df)
-    t1 = load_file()
+            print(data[0])
+            target_table = "bronze.categories"
+            fields = data[0]
+            data.pop(0)
+            rows = data
+            postgres_hook.insert_rows(
+                table=target_table, 
+                rows=rows, 
+                target_fields=fields,
+                commit_every=1
+            )
+
+
+
+    t1 = load_file_categories()
     t2 = db_access()
-    t3 = load_file_categories()
     t1 >> t2
-    t3
 
 main()
 
