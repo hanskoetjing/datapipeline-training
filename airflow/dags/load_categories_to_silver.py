@@ -9,7 +9,7 @@ from datetime import datetime
 
 @dag(
     dag_id            = "load_categories_from_file",
-    description       = "Load data from CSV file to bronze db",
+    description       = "Load categories data from CSV file to silver db",
     schedule_interval = "* * * * *",
     start_date        = datetime(2026, 7, 1),
     catchup           = False,
@@ -19,19 +19,6 @@ from datetime import datetime
     }
 )
 def main():
-    @task
-    def load_file():
-        file_obj_ret = []
-        file_paths = glob('data/raw/*/*/*.csv')
-        for file_obj in file_paths:
-            file_obj_split = file_obj.split('/')
-            file_obj_tmp = {
-                "folder" : file_obj_split[-2],
-                "file" : file_obj_split[-1]
-            }
-            file_obj_ret.append(file_obj_tmp)
-        print(file_obj_ret)
-
     @task
     def load_file_categories(**kwargs):
         xcom_store = kwargs["ti"]
@@ -60,10 +47,6 @@ def main():
            key   = "data",
            value = loaded_data
         )
-
-
-            
-
     
     @task
     def db_access(**kwargs):
@@ -88,8 +71,6 @@ def main():
                 target_fields=fields,
                 commit_every=1
             )
-
-
 
     t1 = load_file_categories()
     t2 = db_access()
