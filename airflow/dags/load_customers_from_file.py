@@ -1,4 +1,3 @@
-#customer_id,name,email,phone,city,join_date,segment
 from airflow.decorators import dag, task
 from airflow.operators.bash import BashOperator
 from datetime import datetime
