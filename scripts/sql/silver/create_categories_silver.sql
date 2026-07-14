@@ -7,15 +7,18 @@ CREATE TABLE silver.categories (
 ALTER TABLE silver.categories ADD CONSTRAINT categories_pk PRIMARY KEY (category_id, modified);
 
 CREATE OR REPLACE FUNCTION silver.insert_cat_to_silver_func() RETURNS trigger as $insert_cat_to_silver_trig$
+	DECLARE e silver.categories%ROWTYPE;
 	BEGIN
-		PERFORM 1 FROM silver.categories WHERE category_id = NEW.category_id;
+		SELECT * INTO e FROM silver.categories WHERE category_id = NEW.category_id;
 		IF NOT FOUND THEN 
 			RETURN NEW;
 		ELSE 
-			UPDATE silver.categories SET
-				category_name = NEW.category_name,
-				modified = CURRENT_TIMESTAMP
-			WHERE category_id = NEW.category_id;
+			IF e.category_name <> NEW.category_name AND e.modified < NEW.modified THEN
+				UPDATE silver.categories SET
+					category_name = NEW.category_name,
+					modified = NEW.modified
+				WHERE category_id = NEW.category_id;
+			END IF;
 			RETURN NULL;
 		END IF;
 	END;
