@@ -45,8 +45,8 @@ def main():
                     row.append(file_datetime)
                     loaded_data.append(row)
             customers_done_file = customers_done_path / file_name
-            print(customers_done_file)
             raw_file_path.rename(customers_done_file)
+        print(loaded_data)
         xcom_store.xcom_push(
            key   = "data",
            value = loaded_data
