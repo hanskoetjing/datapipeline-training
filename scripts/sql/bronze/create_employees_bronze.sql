@@ -11,7 +11,7 @@ CREATE TABLE bronze.employees (
 CREATE OR REPLACE FUNCTION bronze.insert_emp_silver() RETURNS trigger as $insert_emp_silver_trig$
 	BEGIN
 		INSERT INTO silver.employees (employee_id, name, store_id, role, hire_date, modified)
-        VALUES (TRIM(NEW.employee_id), TRIM(NEW.name), TRIM(NEW.role), 
+        VALUES (TRIM(NEW.employee_id), TRIM(NEW.name), TRIM(NEW.store_id), TRIM(NEW.role), 
         TO_DATE(TRIM(NEW.hire_date), 'YYYY-MM-DD'), NEW.modified);
         RETURN NULL;
 	END;
