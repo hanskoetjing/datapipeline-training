@@ -27,7 +27,7 @@ RETURNS trigger as $insert_support_tickets_silver_trig$
                 TRIM(NEW.order_id), 
                 TRIM(NEW.issue_type), 
                 TRIM(NEW.status), 
-                CAST(NULLIF(TRIM(NEW.created_at), '') AS TIMESTAMP), 
+                CAST(NULLIF(TRANSLATE(TRIM(NEW.created_at), '/\', '-'), '') AS TIMESTAMP), 
                 NEW.modified
             );
         EXCEPTION 
