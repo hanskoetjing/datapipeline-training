@@ -17,8 +17,8 @@ CREATE OR REPLACE FUNCTION silver.insert_prod_to_silver_func() RETURNS trigger a
 		IF NOT FOUND THEN 
 			RETURN NEW;
 		ELSE 
-			IF e.product_name <> NEW.product_name AND e.category_id <> NEW.category_id AND
-            e.unit_price <> NEW.unit_price AND e.modified < NEW.modified THEN
+			IF (e.product_name <> NEW.product_name OR e.category_id <> NEW.category_id OR
+            e.unit_price <> NEW.unit_price) AND e.modified < NEW.modified THEN
 				UPDATE silver.products SET
 					product_name = NEW.product_name,
                     category_id = NEW.category_id,
