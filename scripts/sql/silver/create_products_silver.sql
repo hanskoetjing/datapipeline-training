@@ -4,7 +4,7 @@ CREATE TABLE silver.products (
 	product_id varchar(10) NOT NULL,
 	product_name varchar(200),
     category_id varchar(6),
-    unit_price int8,
+    unit_price NUMERIC(15,2),
 	modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -8,13 +8,36 @@ CREATE TABLE bronze.products (
 
 
 
-CREATE OR REPLACE FUNCTION bronze.insert_prod_silver_func() RETURNS trigger as $insert_prod_silver_trig$
-	BEGIN
-		INSERT INTO silver.products (product_id, product_name, category_id, unit_price, modified)
-        VALUES (TRIM(NEW.product_id), TRIM(NEW.product_name), TRIM(NEW.category_id), 
-        CAST(TRIM(NEW.unit_price) AS INT8), NEW.modified);
+CREATE OR REPLACE FUNCTION bronze.insert_prod_silver_func() 
+RETURNS trigger as $insert_prod_silver_trig$
+    BEGIN
+        BEGIN
+            INSERT INTO silver.products (
+                product_id, 
+                product_name, 
+                category_id, 
+                unit_price, 
+                modified
+            )
+            VALUES (
+                TRIM(NEW.product_id), 
+                TRIM(NEW.product_name), 
+                TRIM(NEW.category_id), 
+                CAST(TRIM(NEW.unit_price) AS NUMBER(15,2)), 
+                NEW.modified
+            );
+        EXCEPTION 
+            WHEN OTHERS THEN
+                INSERT INTO bronze.rejected_data (table_name, raw_data, error_message)
+                VALUES (
+                    'bronze.products',
+                    CAST(ROW_TO_JSON(NEW) AS TEXT), 
+                    SQLERRM
+                );
+        END;
+        
         RETURN NULL;
-	END;
+    END;
 $insert_prod_silver_trig$ language plpgsql;
 
 CREATE OR REPLACE TRIGGER insert_prod_silver_trig AFTER INSERT ON bronze.products
