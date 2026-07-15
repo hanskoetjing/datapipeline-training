@@ -4,7 +4,7 @@ CREATE TABLE silver.categories (
 	modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-ALTER TABLE silver.categories ADD CONSTRAINT categories_pk PRIMARY KEY (category_id, modified);
+ALTER TABLE silver.categories ADD CONSTRAINT categories_pk PRIMARY KEY (category_id);
 
 CREATE OR REPLACE FUNCTION silver.insert_cat_to_silver_func() RETURNS trigger as $insert_cat_to_silver_trig$
 	DECLARE e silver.categories%ROWTYPE;
