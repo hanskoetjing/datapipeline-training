@@ -24,6 +24,9 @@ def main():
         xcom_store = kwargs["ti"]
         support_tickets_raw_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "support_tickets" 
         support_tickets_done_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "support_tickets" / "done"
+        if (not(support_tickets_raw_path.is_dir())):
+            print('No support ticket data available')
+            return None
         if (not(support_tickets_done_path.is_dir())):
             support_tickets_done_path.mkdir()
         support_tickets_raw_files = glob(str(support_tickets_raw_path / "*.csv"))

@@ -24,6 +24,9 @@ def main():
         xcom_store = kwargs["ti"]
         payments_raw_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "payments" 
         payments_done_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "payments" / "done"
+        if (not(payments_raw_path.is_dir())):
+            print("No payment data available")
+            return None
         if (not(payments_done_path.is_dir())):
             payments_done_path.mkdir()
         payments_raw_files = glob(str(payments_raw_path / "*.csv"))

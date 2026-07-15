@@ -24,6 +24,7 @@ def main():
         xcom_store = kwargs["ti"]
         shipments_raw_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "shipments" 
         if (not(shipments_raw_path.is_dir())):
+            print('No shipment data available')
             return None
         shipments_done_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "shipments" / "done"
         if (not(shipments_done_path.is_dir())):
