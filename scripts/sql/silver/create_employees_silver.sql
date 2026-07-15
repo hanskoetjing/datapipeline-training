@@ -1,7 +1,7 @@
 CREATE TABLE silver.employees (
     employee_id VARCHAR(50) NOT NULL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    store_id VARCHAR(50) NOT NULL,
+    store_id VARCHAR(50),
     role VARCHAR(100) NOT NULL,
     hire_date DATE,
     modified TIMESTAMP
