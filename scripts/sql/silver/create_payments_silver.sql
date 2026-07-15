@@ -1,7 +1,7 @@
 CREATE TABLE silver.payments (
     payment_id VARCHAR(10) PRIMARY KEY,
     order_id VARCHAR(10) NOT NULL,
-    method VARCHAR(10) NOT NULL,
+    method VARCHAR(30) NOT NULL,
     amount NUMERIC(15,2) NOT NULL,
     status VARCHAR(50) NOT NULL,
     paid_at TIMESTAMP NOT NULL,
