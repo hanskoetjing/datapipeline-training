@@ -23,7 +23,7 @@ RETURNS trigger as $insert_prod_silver_trig$
                 TRIM(NEW.product_id), 
                 TRIM(NEW.product_name), 
                 TRIM(NEW.category_id), 
-                CAST(bronze.clean_numeric(TRIM(NEW.unit_price)) AS NUMBER(15,2)), 
+                CAST(bronze.clean_numeric(TRIM(NEW.unit_price)) AS NUMERIC(15,2)), 
                 NEW.modified
             );
         EXCEPTION 
