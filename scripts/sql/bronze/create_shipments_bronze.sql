@@ -25,8 +25,8 @@ RETURNS trigger as $insert_shipments_silver_trig$
                 TRIM(NEW.shipment_id), 
                 TRIM(NEW.order_id), 
                 TRIM(NEW.courier), 
-                CAST(NULLIF(TRIM(NEW.shipped_date), '') AS DATE), 
-                CAST(NULLIF(TRIM(NEW.delivered_date), '') AS DATE), 
+                CAST(NULLIF(TRANSLATE(TRIM(NEW.shipped_date), '/\-', '-'), '') AS DATE), 
+                CAST(NULLIF(TRANSLATE(TRIM(NEW.delivered_date),'/\-', '-'), '') AS DATE), 
                 TRIM(NEW.status), 
                 NEW.modified
             );
