@@ -24,6 +24,9 @@ def main():
         xcom_store = kwargs["ti"]
         prodsupp_raw_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "product_suppliers" 
         prodsupp_done_path = Path.cwd() / "data" / "raw" / "raw_csv_file" / "product_suppliers" / "done"
+        if (not(prodsupp_raw_path.is_dir())):
+            print("No product supplier data available")
+            return None
         if (not(prodsupp_done_path.is_dir())):
             prodsupp_done_path.mkdir()
         prodsupp_raw_files = glob(str(prodsupp_raw_path / "*.csv"))
