@@ -27,7 +27,7 @@ RETURNS trigger as $insert_payments_silver_trig$
                 TRIM(NEW.method), 
                 CAST(bronze.clean_numeric(TRIM(NEW.amount)) AS NUMERIC(15, 2)), 
                 TRIM(NEW.status), 
-                CAST(TRIM(NEW.paid_at) AS TIMESTAMP), 
+                CAST(NULLIF(TRANSLATE(TRIM(NEW.paid_at), '/\', '-'), '') AS TIMESTAMP), 
                 NEW.modified
             );
         EXCEPTION 
